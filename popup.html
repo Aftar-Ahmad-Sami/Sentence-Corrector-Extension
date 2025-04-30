@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sentence Corrector</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <h2 style="text-align: center;">Sentence Corrector</h2>
+            <button class="icon-button" id="settingsButton" style="width: 35px; display: flex; justify-content: center;">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+        <div class="tone">
+            <div class="row">
+                <h3>Tone:</h3>
+                <div class="checkbox">
+                    <input type="checkbox" id="hackCheckbox">
+                    <label for="hackCheckbox">Hack</label>
+                </div>
+            </div>
+            <select id="dropdown">
+                <option value="normal">Normal (Default)</option>
+                <option value="professional">Professional</option>
+                <option value="friendly">Friendly and Humble</option>
+                <option value="academic">Academic (Research)</option>
+            </select>
+        </div>
+        <textarea id="userInput" placeholder="Type or paste text here..."></textarea>
+        <div class="buttonRow">
+            <button id="correctButton">Correct Sentences</button>
+            <div style="width: 20px"></div>
+            <button id="copyButton">Copy to Clipboard</button>
+        </div>
+        <h4 class="copyStatus"></h4>
+        <div id="outputContainer">
+            <h3>Corrected Text:</h3>
+            <div id="output"></div>
+        </div>
+    </div>
+    <div id="apiKeyModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal" class="close">&times;</span>
+            <h3>Enter API Key</h3>
+            <input type="password" id="apiKeyInput" placeholder="Enter your API key">
+            <input type="password" id="passphraseInput" placeholder="Optional passphrase for security">
+            <button id="saveApiKeyButton">Save</button>
+        </div>
+    </div>
+    <div id="content"></div>
+    <script src="lib/marked.min.js"></script>
+    <script src="js/popup.js"></script>
+</body>
+</html>

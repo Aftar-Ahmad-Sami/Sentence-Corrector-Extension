@@ -1,0 +1,178 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    padding: 0;
+    margin: 0;
+    overflow-y: scroll;
+}
+
+.container {
+    padding: 20px;
+    width: 300px;
+}
+
+#setApiKeyButton {
+    display: block;
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color .3s ease-in-out;
+}
+
+#setApiKeyButton:hover {
+    background-color: #138496;
+}
+
+#dropdown {
+    height: 20%;
+    padding: 5px;
+    border-radius: 5px;
+    border: none;
+    box-shadow: 0px -1px rgba(0, 0, 0, 0.05), inset -1rem -0.5rem 0.75rem rgba(255, 255, 255, 0.25);
+    background-color: #fff;
+    margin-top: -2px;
+    margin-bottom: 15px;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h2, h3 {
+    color: #333;
+}
+
+textarea {
+    width: calc(100% - 20px);
+    height: 100px;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    box-shadow: 0px -1px rgba(0, 0, 0, .05), inset -1rem -.5rem .75rem rgba(255, 255, 255, .25);
+    background-color: #fff;
+    resize: vertical;
+}
+
+.buttonRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+button {
+    display: block;
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color .3s ease-in-out;
+}
+
+#copyButton {
+    background-color: #28a745;
+    display: none;
+}
+
+.copyStatus {
+    height: 15%;
+    color: #28a745;
+    display: none;
+}
+
+#outputContainer {
+    margin-top: 15px;
+    display: none;
+}
+
+#outputContainer.active {
+    display: block;
+}
+
+#output {
+    padding: .75rem;
+    border-radius: .25rem;
+    color: #212529;
+    text-align: justify;
+    border: 1px solid #ccc;
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 300px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+#apiKeyInput, #passphraseInput {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: none;
+    box-shadow: 0px -1px rgba(0, 0, 0, 0.05), inset -1rem -0.5rem 0.75rem rgba(255, 255, 255, 0.25);
+    background-color: #fff;
+}
+
+#saveApiKeyButton {
+    background-color: #28a745;
+}
+
+#saveApiKeyButton:hover {
+    background-color: #218838;
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #333;
+}
+
+.icon-button:hover {
+    color: #007bff;
+}
