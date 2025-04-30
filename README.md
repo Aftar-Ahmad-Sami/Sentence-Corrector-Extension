@@ -62,7 +62,7 @@ sentence-corrector/
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-username/sentence-corrector.git
+   git clone https://github.com/Aftar-Ahmad-Sami/Sentence-Corrector-Extension.git
    ```
 2. **Load the Extension in Chrome**:
    - Open Chrome and navigate to `chrome://extensions/`.
