@@ -2,7 +2,7 @@
 
 **Correct your text effortlessly with AI-powered grammar and tone adjustments.**
 
-The Sentence Corrector is a Chrome extension designed to enhance your writing by correcting grammatical errors and refining text with customizable tones. Powered by the Gemini 1.5 Flash API, this extension offers a user-friendly interface to improve text quality, making it ideal for students, professionals, and writers. With secure API key management and a sleek popup UI, it ensures both functionality and privacy.
+The Sentence Corrector is a Chrome extension designed to enhance your writing by correcting grammatical errors and refining text with customizable tones. Powered by the Gemini 2.0 Flash API, this extension offers a user-friendly interface to improve text quality, making it ideal for students, professionals, and writers. With secure API key management and a sleek popup UI, it ensures both functionality and privacy.
 
 ## Features
 
@@ -18,7 +18,7 @@ The Sentence Corrector is a Chrome extension designed to enhance your writing by
 1. **Input Text**: Paste or type your text into the extension's textarea.
 2. **Select Tone**: Choose a tone (Normal, Professional, Friendly, or Academic) from the dropdown.
 3. **Set API Key**: Securely enter and store your Gemini API key with an optional passphrase.
-4. **Correct Text**: Click "Correct Sentences" to process your text via the Gemini 1.5 Flash API.
+4. **Correct Text**: Click "Correct Sentences" to process your text via the Gemini 2.0 Flash API.
 5. **Copy Output**: Copy the corrected text to your clipboard for immediate use.
 
 ## Technical Details
@@ -27,7 +27,7 @@ The Sentence Corrector is a Chrome extension designed to enhance your writing by
   - **HTML/CSS**: Popup UI with a modal for API key input, styled for responsiveness and accessibility.
   - **JavaScript**: Handles user interactions, API requests, and encryption/decryption logic.
 - **Backend Integration**:
-  - Integrates with the Gemini 1.5 Flash API for text correction and tone adjustment.
+  - Integrates with the Gemini 2.0 Flash API for text correction and tone adjustment.
   - Uses the `marked` library to render Markdown-formatted responses.
 - **Security**:
   - **Encryption**: API keys and optional passphrases are encrypted using AES-GCM with PBKDF2-derived keys (SHA-512, 250,000 iterations).
@@ -69,7 +69,7 @@ sentence-corrector/
    - Enable "Developer mode" in the top-right corner.
    - Click "Load unpacked" and select the cloned repository folder.
 3. **Obtain a Gemini API Key**:
-   - Sign up for access to the Gemini 1.5 Flash API and generate an API key.
+   - Sign up for access to the Gemini 2.0 Flash API and generate an API key.
 4. **Set Up the Extension**:
    - Click the extension icon in Chrome.
    - Enter your Gemini API key and an optional passphrase in the popup modal.
@@ -105,6 +105,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Acknowledgments
 
-- Built with the [Gemini 1.5 Flash API](https://cloud.google.com/gemini) for AI-powered text correction.
+- Built with the [Gemini 2.0 Flash API](https://cloud.google.com/gemini) for AI-powered text correction.
 - Uses the [marked](https://github.com/markedjs/marked) library for Markdown parsing.
 - Inspired by the need for simple, secure, and effective text correction tools.
