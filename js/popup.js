@@ -61,7 +61,7 @@ async function deriveKey(passphrase, salt, keySeed) {
 }
 
 // Key derivation for passphrase encryption
-async function derivePassphraseKey() {
+async function derivePassphraseKey(salt) {
     const encoder = new TextEncoder();
     let deviceSecret = await chrome.storage.local.get(['deviceSecret']);
     if (!deviceSecret.deviceSecret) {
@@ -78,7 +78,7 @@ async function derivePassphraseKey() {
     return crypto.subtle.deriveKey(
         {
             name: 'PBKDF2',
-            salt: encoder.encode('passphrase-salt'),
+            salt: new Uint8Array(salt),
             iterations: 250000,
             hash: 'SHA-512'
         },
@@ -93,7 +93,8 @@ async function derivePassphraseKey() {
 async function encryptPassphrase(passphrase) {
     if (!passphrase) return null;
     const encoder = new TextEncoder();
-    const key = await derivePassphraseKey();
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const key = await derivePassphraseKey(salt);
     const iv = crypto.getRandomValues(new Uint8Array(12));
     const encrypted = await crypto.subtle.encrypt(
         {
@@ -105,6 +106,7 @@ async function encryptPassphrase(passphrase) {
     );
     return {
         iv: Array.from(iv),
+        salt: Array.from(salt),
         encrypted: Array.from(new Uint8Array(encrypted))
     };
 }
@@ -113,7 +115,7 @@ async function encryptPassphrase(passphrase) {
 async function decryptPassphrase(encryptedData) {
     if (!encryptedData) return '';
     const decoder = new TextDecoder();
-    const key = await derivePassphraseKey();
+    const key = await derivePassphraseKey(encryptedData.salt);
     try {
         const decrypted = await crypto.subtle.decrypt(
             {
