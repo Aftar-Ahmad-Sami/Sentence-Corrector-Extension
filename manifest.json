@@ -4,7 +4,6 @@
   "version": "1.0.1",
   "description": "Correct grammatical mistakes in sentences.",
   "permissions": [
-    "activeTab",
     "storage"
   ],
   "action": {
