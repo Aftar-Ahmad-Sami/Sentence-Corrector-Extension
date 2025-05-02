@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Sentence Corrector",
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "Correct grammatical mistakes in sentences.",
   "permissions": [
     "activeTab",
