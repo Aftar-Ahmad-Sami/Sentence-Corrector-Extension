@@ -60,10 +60,20 @@ async function deriveKey(passphrase, salt, keySeed) {
     );
 }
 
+async function getDeviceSecret() {
+    let result = await chrome.storage.local.get(['deviceSecret']);
+    if (!result.deviceSecret) {
+        const newSecret = await generateKeySeed();
+        await chrome.storage.local.set({ deviceSecret: newSecret });
+        return newSecret;
+    }
+    return result.deviceSecret;
+}
+
 // Key derivation for passphrase encryption
 async function derivePassphraseKey(salt) {
     const encoder = new TextEncoder();
-    let deviceSecret = await chrome.storage.local.get(['deviceSecret']);
+    let deviceSecret = await getDeviceSecret();
     if (!deviceSecret.deviceSecret) {
         deviceSecret = await generateKeySeed();
         await chrome.storage.local.set({ deviceSecret });
