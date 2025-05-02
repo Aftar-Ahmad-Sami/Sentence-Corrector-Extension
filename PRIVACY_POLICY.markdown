@@ -2,7 +2,7 @@
 
 **Last Updated: April 30, 2025**
 
-Thank you for using the Sentence Corrector Chrome extension ("the Extension"). This Privacy Policy explains how we collect, use, store, and protect your information when you use the Extension. By installing and using the Extension, you agree to the practices described in this policy.
+Thank you for using the Sentence Corrector Chrome extension. This Privacy Policy explains how we collect, use, store, and protect your information when you use the Extension. By installing and using the Extension, you agree to the practices described in this policy.
 
 ## 1. Information We Collect
 
@@ -76,11 +76,11 @@ We may update this Privacy Policy to reflect changes in the Extension’s functi
 
 ## 9. Contact Us
 
-If you have questions or concerns about this Privacy Policy or the Extension’s data practices, please contact us via the [GitHub Issues page](https://github.com/your-username/sentence-corrector/issues) for the Sentence Corrector repository.
+If you have questions or concerns about this Privacy Policy or the Extension’s data practices, please contact us via the [GitHub Issues page](https://github.com/Aftar-Ahmad-Sami/Sentence-Corrector-Extension/issues) for the Sentence Corrector repository.
 
 ## 10. Additional Information
 
-- **Open Source**: The Extension is open source, and its source code is available at [https://github.com/your-username/sentence-corrector](https://github.com/your-username/sentence-corrector). You can review the code to understand how your data is handled.
+- **Open Source**: The Extension is open source, and its source code is available at [https://github.com/Aftar-Ahmad-Sami/Sentence-Corrector-Extension](https://github.com/Aftar-Ahmad-Sami/Sentence-Corrector-Extension). You can review the code to understand how your data is handled.
 - **Third-Party Services**: The Extension relies on the Gemini 1.5 Flash API. We are not responsible for the privacy practices of Google Cloud or other third-party services.
 
 ---
