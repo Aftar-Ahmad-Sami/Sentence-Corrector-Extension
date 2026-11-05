@@ -8,22 +8,33 @@ const closeModal = document.getElementById('closeModal');
 const saveApiKeyButton = document.getElementById('saveApiKeyButton');
 const apiKeyInput = document.getElementById('apiKeyInput');
 const passphraseInput = document.getElementById('passphraseInput');
+const modalStatus = document.getElementById('modalStatus');
 
-settingsButton.addEventListener('click', () => {
+// alert()/prompt() are not supported in Firefox extension popups,
+// so messages are shown inline in the settings modal instead.
+function showModalStatus(message) {
+    modalStatus.innerText = message;
+}
+
+function openModal(message = '') {
+    showModalStatus(message);
     modal.style.display = 'block';
-});
+}
 
-closeModal.addEventListener('click', () => {
+function hideModal() {
     modal.style.display = 'none';
     apiKeyInput.value = '';
     passphraseInput.value = '';
-});
+    showModalStatus('');
+}
+
+settingsButton.addEventListener('click', () => openModal());
+
+closeModal.addEventListener('click', hideModal);
 
 window.addEventListener('click', (event) => {
     if (event.target === modal) {
-        modal.style.display = 'none';
-        apiKeyInput.value = '';
-        passphraseInput.value = '';
+        hideModal();
     }
 });
 
@@ -184,10 +195,8 @@ async function decryptApiKey(encryptedData) {
         const encryptedPassphrase = await chrome.storage.local.get(['encryptedPassphrase']);
         passphrase = await decryptPassphrase(encryptedPassphrase.encryptedPassphrase);
         if (passphrase === null) {
-            passphrase = prompt('Enter your passphrase to decrypt the API key:');
-            if (!passphrase) {
-                throw new Error('Passphrase required to decrypt API key.');
-            }
+            openModal('Could not unlock your saved API key. Please enter it again.');
+            throw new Error('Saved passphrase could not be decrypted. Please re-enter your API key.');
         }
     }
     const key = await deriveKey(passphrase, encryptedData.salt, keySeed.keySeed);
@@ -216,45 +225,159 @@ saveApiKeyButton.addEventListener('click', async () => {
             }
             const encryptedData = await encryptApiKey(apiKey, passphrase);
             await chrome.storage.sync.set({ encryptedApiKey: encryptedData });
-            alert('API key saved securely!');
-            modal.style.display = 'none';
-            apiKeyInput.value = '';
-            passphraseInput.value = '';
+            hideModal();
+            showStatus('API key saved securely!');
+            loadAvailableModels();
         } catch (error) {
-            alert(`Error saving API key: ${error.message}`);
+            showModalStatus(`Error saving API key: ${error.message}`);
         }
     } else {
-        alert('Please enter a valid API key.');
+        showModalStatus('Please enter a valid API key.');
     }
 });
+
+// ---- Model selection ----
+// "-latest" aliases always point to Google's current models, so the defaults
+// keep working when older versions are retired. The full list is loaded from
+// the API once an API key is available.
+const API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
+const DEFAULT_MODEL = 'gemini-flash-latest';
+const modelSelect = document.getElementById('modelSelect');
+
+function addModelOption(name) {
+    if ([...modelSelect.options].some(o => o.value === name)) return;
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    modelSelect.appendChild(option);
+}
+
+async function getApiKey() {
+    const data = await chrome.storage.sync.get(['encryptedApiKey']);
+    return data.encryptedApiKey ? decryptApiKey(data.encryptedApiKey) : null;
+}
+
+// Adds every Gemini model the user's key can use for text generation.
+async function loadAvailableModels() {
+    try {
+        const apiKey = await getApiKey();
+        if (!apiKey) return;
+        const response = await fetch(`${API_BASE}/models?pageSize=1000&key=${apiKey}`);
+        const data = await response.json();
+        (data.models || [])
+            .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
+            .map(m => m.name.replace(/^models\//, ''))
+            .filter(name => name.startsWith('gemini'))
+            .sort()
+            .forEach(addModelOption);
+    } catch (error) {
+        console.warn('Could not load model list:', error);
+    }
+}
+
+async function initModelSelect() {
+    const { selectedModel } = await chrome.storage.sync.get(['selectedModel']);
+    const model = selectedModel || DEFAULT_MODEL;
+    addModelOption(model);
+    modelSelect.value = model;
+    await loadAvailableModels();
+    modelSelect.value = model; // keep the saved choice after the list reloads
+}
+
+modelSelect.addEventListener('change', () => {
+    chrome.storage.sync.set({ selectedModel: modelSelect.value });
+});
+
+initModelSelect();
+
+// ---- API call ----
+const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
+const MAX_ATTEMPTS = 3;
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Calls Gemini, retrying temporary errors (overload, rate limit) with
+// exponential backoff.
+async function callGemini(apiKey, model, payload) {
+    const url = `${API_BASE}/models/${encodeURIComponent(model)}:generateContent?key=${apiKey}`;
+    let data;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        data = await response.json();
+        if (!data.error || !RETRYABLE_STATUSES.has(data.error.code)) {
+            return data;
+        }
+        if (attempt < MAX_ATTEMPTS) {
+            document.getElementById('output').innerText =
+                `${model} is busy, retrying (${attempt}/${MAX_ATTEMPTS - 1})...`;
+            await sleep(1000 * 2 ** (attempt - 1)); // 1s, 2s
+        }
+    }
+    return data;
+}
 
 // Existing functionality with API key retrieval
 document.getElementById('hackCheckbox').addEventListener('change', () => {
     hackTheAI = !hackTheAI;
 });
 
-document.getElementById('correctButton').addEventListener('click', async () => {
-    document.getElementById('output').innerText = 'Loading...';
+const correctButton = document.getElementById('correctButton');
+const outputEl = document.getElementById('output');
+const outputContainer = document.getElementById('outputContainer');
+const copyButton = document.getElementById('copyButton');
+const copyStatus = document.querySelector('.copyStatus');
+let copyText = '';
 
-    let API_KEY;
-    try {
-        const data = await chrome.storage.sync.get(['encryptedApiKey']);
-        if (data.encryptedApiKey) {
-            API_KEY = await decryptApiKey(data.encryptedApiKey);
-        } else {
-            document.getElementById('output').innerText = 'No API key found. Please set one.';
-            return;
-        }
-    } catch (error) {
-        document.getElementById('output').innerText = `Error retrieving API key: ${error.message}`;
+// Shows a status/error message (not a correction result) in the output card.
+function showStatus(message) {
+    outputContainer.classList.remove('active');
+    copyButton.style.display = 'none';
+    copyStatus.style.display = 'none';
+    outputEl.innerText = message;
+}
+
+function setLoading(isLoading) {
+    correctButton.disabled = isLoading;
+    correctButton.classList.toggle('loading', isLoading);
+    correctButton.querySelector('.button-text').textContent = isLoading ? 'Correcting…' : 'Correct';
+}
+
+copyButton.addEventListener('click', () => {
+    copyStatus.style.display = 'inline';
+    navigator.clipboard.writeText(copyText)
+        .then(() => {
+            copyStatus.innerText = 'Copied!';
+            setTimeout(() => { copyStatus.style.display = 'none'; }, 1500);
+        })
+        .catch(error => {
+            copyStatus.innerText = `Error: ${error}`;
+        });
+});
+
+correctButton.addEventListener('click', async () => {
+    if (!document.getElementById('userInput').value.trim()) {
+        showStatus('Type or paste some text first.');
         return;
     }
 
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+    showStatus('Working on it…');
 
-    const headers = {
-        'Content-Type': 'application/json'
-    };
+    let API_KEY;
+    try {
+        API_KEY = await getApiKey();
+        if (!API_KEY) {
+            showStatus('No API key found. Click the ⚙ icon to add one.');
+            return;
+        }
+    } catch (error) {
+        showStatus(`Error retrieving API key: ${error.message}`);
+        return;
+    }
+
 
     const user_input = document.getElementById('userInput').value;
     const tone_input = document.getElementById('dropdown').value;
@@ -299,45 +422,38 @@ document.getElementById('correctButton').addEventListener('click', async () => {
         ],
     };
 
-    fetch(`${url}?key=${API_KEY}`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(payload)
-    })
-        .then(response => response.json())
-        .then(data => {
-            let copyText = "";
-            const copyButton = document.getElementById('copyButton');
+    const model = modelSelect.value;
 
-            let texts = data.candidates?.flatMap(candidate =>
-                candidate.content?.parts?.map(part => part.text.trim()) || []
+    setLoading(true);
+
+    callGemini(API_KEY, model, payload)
+        .then(data => {
+            if (data.error) {
+                const hint = RETRYABLE_STATUSES.has(data.error.code) || data.error.code === 404
+                    ? '\n\nTry selecting a different model above.'
+                    : '';
+                showStatus(`API error ${data.error.code} (${model}): ${data.error.message}${hint}`);
+                return;
+            }
+
+            const texts = data.candidates?.flatMap(candidate =>
+                candidate.content?.parts
+                    ?.filter(part => typeof part.text === 'string' && !part.thought)
+                    .map(part => part.text.trim()) || []
             ) || [];
 
             if (texts.length > 0) {
-                copyText += texts.join('\n');
-                const markdownOutput = marked.parse(copyText);
-                document.getElementById('output').innerHTML = markdownOutput;
-                document.getElementById('outputContainer').classList.add("active");
-                copyButton.style.display = 'block';
+                copyText = texts.join('\n');
+                outputEl.innerHTML = marked.parse(copyText);
+                outputContainer.classList.add('active');
+                copyButton.style.display = 'inline-flex';
+                copyStatus.style.display = 'none';
             } else {
-                document.getElementById('output').innerText = 'No text found in the response.';
-                document.getElementById('outputContainer').classList.remove("active");
-                copyButton.style.display = 'none';
+                showStatus('No text found in the response.');
             }
-
-            copyButton.addEventListener('click', () => {
-                const outputText = copyText;
-                document.getElementsByClassName('copyStatus')[0].style.display = 'block';
-                navigator.clipboard.writeText(outputText)
-                    .then(() => {
-                        document.getElementsByClassName('copyStatus')[0].innerText = 'Copied!';
-                    })
-                    .catch(error => {
-                        document.getElementsByClassName('copyStatus')[0].innerText = `Error: ${error}`;
-                    });
-            });
         })
         .catch(error => {
-            document.getElementById('output').innerText = `Request failed with error ${error}`;
-        });
+            showStatus(`Request failed: ${error}`);
+        })
+        .finally(() => setLoading(false));
 });

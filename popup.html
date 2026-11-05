@@ -2,55 +2,99 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sentence Corrector</title>
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <div class="row">
-            <h2 style="text-align: center;">Sentence Corrector</h2>
-            <button class="icon-button" id="settingsButton" style="width: 35px; display: flex; justify-content: center;">
-                <i class="fas fa-cog"></i>
-            </button>
-        </div>
-        <div class="tone">
-            <div class="row">
-                <h3>Tone:</h3>
-                <div class="checkbox">
-                    <input type="checkbox" id="hackCheckbox">
-                    <label for="hackCheckbox">Hack</label>
+    <main class="container">
+        <header class="header">
+            <div class="brand">
+                <img src="icons/32px.png" alt="" class="brand-icon">
+                <div>
+                    <h1>Sentence Corrector</h1>
+                    <p class="subtitle">Polish your writing with Gemini</p>
                 </div>
             </div>
-            <select id="dropdown">
-                <option value="normal">Normal (Default)</option>
-                <option value="professional">Professional</option>
-                <option value="friendly">Friendly and Humble</option>
-                <option value="academic">Academic (Research)</option>
-            </select>
-        </div>
-        <textarea id="userInput" placeholder="Type or paste text here..."></textarea>
-        <div class="buttonRow">
-            <button id="correctButton">Correct Sentences</button>
-            <div style="width: 20px"></div>
-            <button id="copyButton">Copy to Clipboard</button>
-        </div>
-        <h4 class="copyStatus"></h4>
-        <div id="outputContainer">
-            <h3>Corrected Text:</h3>
+            <button class="icon-button" id="settingsButton" title="API key settings" aria-label="API key settings">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </button>
+        </header>
+
+        <section class="card">
+            <div class="field-grid">
+                <label class="field">
+                    <span class="field-label">Tone</span>
+                    <select id="dropdown">
+                        <option value="normal">Normal</option>
+                        <option value="professional">Professional</option>
+                        <option value="friendly">Friendly &amp; humble</option>
+                        <option value="academic">Academic</option>
+                    </select>
+                </label>
+                <label class="field">
+                    <span class="field-label">Model</span>
+                    <select id="modelSelect">
+                        <option value="gemini-flash-latest">gemini-flash-latest</option>
+                        <option value="gemini-flash-lite-latest">gemini-flash-lite-latest</option>
+                    </select>
+                </label>
+            </div>
+
+            <textarea id="userInput" placeholder="Type or paste your text here…" spellcheck="true"></textarea>
+
+            <div class="actions">
+                <label class="switch" title="Send your text to the model as-is, without the correction prompt">
+                    <input type="checkbox" id="hackCheckbox">
+                    <span class="switch-track"><span class="switch-thumb"></span></span>
+                    <span class="switch-label">Raw prompt</span>
+                </label>
+                <button id="correctButton" class="primary">
+                    <span class="spinner" aria-hidden="true"></span>
+                    <span class="button-text">Correct</span>
+                </button>
+            </div>
+        </section>
+
+        <section id="outputContainer" class="card output-card" aria-live="polite">
+            <div class="output-header">
+                <span class="field-label">Result</span>
+                <div class="copy-group">
+                    <span class="copyStatus"></span>
+                    <button id="copyButton" class="ghost" title="Copy to clipboard">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        Copy
+                    </button>
+                </div>
+            </div>
             <div id="output"></div>
-        </div>
-    </div>
+        </section>
+    </main>
+
     <div id="apiKeyModal" class="modal">
-        <div class="modal-content">
-            <span id="closeModal" class="close">&times;</span>
-            <h3>Enter API Key</h3>
-            <input type="password" id="apiKeyInput" placeholder="Enter your API key">
-            <input type="password" id="passphraseInput" placeholder="Optional passphrase for security">
-            <button id="saveApiKeyButton">Save</button>
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-header">
+                <h2 id="modalTitle">API key</h2>
+                <button id="closeModal" class="icon-button close" aria-label="Close">&times;</button>
+            </div>
+            <p class="modal-hint">
+                Get a free key from
+                <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>.
+                It's encrypted before being saved in your browser's extension storage.
+            </p>
+            <input type="password" id="apiKeyInput" placeholder="Gemini API key" autocomplete="off">
+            <input type="password" id="passphraseInput" placeholder="Passphrase (optional)" autocomplete="off">
+            <button id="saveApiKeyButton" class="primary">Save key</button>
+            <p id="modalStatus"></p>
         </div>
     </div>
-    <div id="content"></div>
+
     <script src="lib/marked.min.js"></script>
     <script src="js/popup.js"></script>
 </body>

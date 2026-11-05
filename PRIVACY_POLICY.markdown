@@ -18,7 +18,7 @@ The Extension is designed to prioritize your privacy and minimize data collectio
 - **Usage Data**: The Extension does not collect analytics or usage data. All processing occurs locally or through the Gemini API.
 
 ### c. Third-Party Data
-- **Gemini API**: When you use the Extension to correct text, your input text and tone preferences are sent to the Gemini 1.5 Flash API, operated by Google Cloud. The API’s response (corrected text) is displayed in the Extension. Please review [Google Cloud’s Privacy Policy](https://cloud.google.com/terms/privacy) for details on how your data is handled by the Gemini API.
+- **Gemini API**: When you use the Extension to correct text, your input text and tone preferences are sent to the Gemini Flash API, operated by Google Cloud. The API’s response (corrected text) is displayed in the Extension. Please review [Google Cloud’s Privacy Policy](https://cloud.google.com/terms/privacy) for details on how your data is handled by the Gemini API.
 
 ## 2. How We Use Your Information
 
@@ -49,7 +49,7 @@ Despite these measures, no system is completely secure. You are responsible for 
 
 We do not share your personal information with third parties, except as necessary to provide the Extension’s functionality:
 
-- **Gemini API**: Your input text and tone preferences are sent to the Gemini 1.5 Flash API for processing. This is necessary to generate corrected text. We do not control how Google Cloud handles this data; please refer to their privacy policy for details.
+- **Gemini API**: Your input text and tone preferences are sent to the Gemini Flash API for processing. This is necessary to generate corrected text. We do not control how Google Cloud handles this data; please refer to their privacy policy for details.
 - **No Other Sharing**: We do not sell, trade, or share your API key, passphrase, or input text with any other entities, except as required by law.
 
 ## 5. Data Retention
@@ -81,7 +81,7 @@ If you have questions or concerns about this Privacy Policy or the Extension’s
 ## 10. Additional Information
 
 - **Open Source**: The Extension is open source, and its source code is available at [https://github.com/Aftar-Ahmad-Sami/Sentence-Corrector-Extension](https://github.com/Aftar-Ahmad-Sami/Sentence-Corrector-Extension). You can review the code to understand how your data is handled.
-- **Third-Party Services**: The Extension relies on the Gemini 1.5 Flash API. We are not responsible for the privacy practices of Google Cloud or other third-party services.
+- **Third-Party Services**: The Extension relies on the Gemini Flash API. We are not responsible for the privacy practices of Google Cloud or other third-party services.
 
 ---
 
