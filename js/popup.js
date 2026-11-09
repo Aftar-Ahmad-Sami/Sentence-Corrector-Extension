@@ -36,6 +36,66 @@ window.addEventListener('click', (event) => {
     if (event.target === modal) {
         hideModal();
     }
+    if (event.target === unlockModal) {
+        cancelUnlock();
+    }
+});
+
+// ---- Passphrase unlock ----
+// The passphrase is never written to disk. It is kept in storage.session,
+// which the browser holds in memory and clears when it closes.
+const unlockModal = document.getElementById('unlockModal');
+const unlockInput = document.getElementById('unlockInput');
+const unlockStatus = document.getElementById('unlockStatus');
+let unlockRequest = null;
+
+function closeUnlockPrompt() {
+    unlockModal.style.display = 'none';
+    unlockInput.value = '';
+    unlockStatus.innerText = '';
+    const request = unlockRequest;
+    unlockRequest = null;
+    return request;
+}
+
+function cancelUnlock() {
+    closeUnlockPrompt()?.reject(new Error('passphrase not entered.'));
+}
+
+function promptForUnlock(encryptedData) {
+    return new Promise((resolve, reject) => {
+        unlockRequest = { encryptedData, resolve, reject };
+        unlockModal.style.display = 'block';
+        unlockInput.focus();
+    });
+}
+
+async function submitUnlock() {
+    const passphrase = unlockInput.value.trim();
+    if (!unlockRequest) return;
+    if (!passphrase) {
+        unlockStatus.innerText = 'Enter your passphrase.';
+        return;
+    }
+    try {
+        const apiKey = await decryptApiKey(unlockRequest.encryptedData, passphrase);
+        await chrome.storage.session.set({ passphrase });
+        closeUnlockPrompt()?.resolve(apiKey);
+        loadAvailableModels();
+    } catch (error) {
+        // AES-GCM reports a wrong key as an OperationError.
+        unlockStatus.innerText = error.name === 'OperationError' ? 'Incorrect passphrase.' : error.message;
+    }
+}
+
+document.getElementById('unlockButton').addEventListener('click', submitUnlock);
+document.getElementById('closeUnlock').addEventListener('click', cancelUnlock);
+unlockInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') submitUnlock();
+});
+document.getElementById('forgotPassphrase').addEventListener('click', () => {
+    cancelUnlock();
+    openModal('Enter your API key again. You can choose a new passphrase or leave it blank.');
 });
 
 
@@ -71,87 +131,8 @@ async function deriveKey(passphrase, salt, keySeed) {
     );
 }
 
-async function getDeviceSecret() {
-    let result = await chrome.storage.local.get(['deviceSecret']);
-    if (!result.deviceSecret) {
-        const newSecret = await generateKeySeed();
-        await chrome.storage.local.set({ deviceSecret: newSecret });
-        return newSecret;
-    }
-    return result.deviceSecret;
-}
-
-// Key derivation for passphrase encryption
-async function derivePassphraseKey(salt) {
-    const encoder = new TextEncoder();
-    let deviceSecret = await getDeviceSecret();
-    if (!deviceSecret.deviceSecret) {
-        deviceSecret = await generateKeySeed();
-        await chrome.storage.local.set({ deviceSecret });
-    }
-    const keyMaterial = await crypto.subtle.importKey(
-        'raw',
-        encoder.encode(deviceSecret.deviceSecret),
-        { name: 'PBKDF2' },
-        false,
-        ['deriveBits', 'deriveKey']
-    );
-    return crypto.subtle.deriveKey(
-        {
-            name: 'PBKDF2',
-            salt: new Uint8Array(salt),
-            iterations: 250000,
-            hash: 'SHA-512'
-        },
-        keyMaterial,
-        { name: 'AES-GCM', length: 256 },
-        true,
-        ['encrypt', 'decrypt']
-    );
-}
-
-// Encrypt passphrase
-async function encryptPassphrase(passphrase) {
-    if (!passphrase) return null;
-    const encoder = new TextEncoder();
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const key = await derivePassphraseKey(salt);
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const encrypted = await crypto.subtle.encrypt(
-        {
-            name: 'AES-GCM',
-            iv: iv
-        },
-        key,
-        encoder.encode(passphrase)
-    );
-    return {
-        iv: Array.from(iv),
-        salt: Array.from(salt),
-        encrypted: Array.from(new Uint8Array(encrypted))
-    };
-}
-
-// Decrypt passphrase
-async function decryptPassphrase(encryptedData) {
-    if (!encryptedData) return '';
-    const decoder = new TextDecoder();
-    const key = await derivePassphraseKey(encryptedData.salt);
-    try {
-        const decrypted = await crypto.subtle.decrypt(
-            {
-                name: 'AES-GCM',
-                iv: new Uint8Array(encryptedData.iv)
-            },
-            key,
-            new Uint8Array(encryptedData.encrypted)
-        );
-        return decoder.decode(decrypted);
-    } catch (error) {
-        console.error('Passphrase decryption failed:', error);
-        return null;
-    }
-}
+// Older versions saved an encrypted copy of the passphrase on disk.
+chrome.storage.local.remove(['encryptedPassphrase', 'deviceSecret']);
 
 // Encrypt API key
 async function encryptApiKey(apiKey, passphrase) {
@@ -184,20 +165,11 @@ async function encryptApiKey(apiKey, passphrase) {
 }
 
 // Decrypt API key
-async function decryptApiKey(encryptedData) {
+async function decryptApiKey(encryptedData, passphrase) {
     const decoder = new TextDecoder();
     const keySeed = await chrome.storage.local.get(['keySeed']);
     if (!keySeed.keySeed) {
         throw new Error('No key seed found. Please set API key again.');
-    }
-    let passphrase = '';
-    if (encryptedData.hasPassphrase) {
-        const encryptedPassphrase = await chrome.storage.local.get(['encryptedPassphrase']);
-        passphrase = await decryptPassphrase(encryptedPassphrase.encryptedPassphrase);
-        if (passphrase === null) {
-            openModal('Could not unlock your saved API key. Please enter it again.');
-            throw new Error('Saved passphrase could not be decrypted. Please re-enter your API key.');
-        }
     }
     const key = await deriveKey(passphrase, encryptedData.salt, keySeed.keySeed);
     const decrypted = await crypto.subtle.decrypt(
@@ -217,14 +189,13 @@ saveApiKeyButton.addEventListener('click', async () => {
     const passphrase = passphraseInput.value.trim();
     if (apiKey) {
         try {
-            const encryptedPassphrase = await encryptPassphrase(passphrase);
-            if (encryptedPassphrase) {
-                await chrome.storage.local.set({ encryptedPassphrase });
-            } else {
-                await chrome.storage.local.remove('encryptedPassphrase');
-            }
             const encryptedData = await encryptApiKey(apiKey, passphrase);
             await chrome.storage.sync.set({ encryptedApiKey: encryptedData });
+            if (passphrase) {
+                await chrome.storage.session.set({ passphrase });
+            } else {
+                await chrome.storage.session.remove('passphrase');
+            }
             hideModal();
             showStatus('API key saved securely!');
             loadAvailableModels();
@@ -252,9 +223,22 @@ function addModelOption(name) {
     modelSelect.appendChild(option);
 }
 
-async function getApiKey() {
-    const data = await chrome.storage.sync.get(['encryptedApiKey']);
-    return data.encryptedApiKey ? decryptApiKey(data.encryptedApiKey) : null;
+// Returns null when no key is saved, or when the key is locked and
+// `interactive` is false.
+async function getApiKey({ interactive = false } = {}) {
+    const { encryptedApiKey } = await chrome.storage.sync.get(['encryptedApiKey']);
+    if (!encryptedApiKey) return null;
+    if (!encryptedApiKey.hasPassphrase) return decryptApiKey(encryptedApiKey, '');
+
+    const { passphrase } = await chrome.storage.session.get(['passphrase']);
+    if (passphrase) {
+        try {
+            return await decryptApiKey(encryptedApiKey, passphrase);
+        } catch {
+            await chrome.storage.session.remove('passphrase');
+        }
+    }
+    return interactive ? promptForUnlock(encryptedApiKey) : null;
 }
 
 // Adds every Gemini model the user's key can use for text generation.
@@ -346,6 +330,47 @@ function setLoading(isLoading) {
     correctButton.querySelector('.button-text').textContent = isLoading ? 'Correcting…' : 'Correct';
 }
 
+// Model output is untrusted, so only plain formatting is kept. DOMParser
+// documents are inert: nothing in them runs or loads while being cleaned.
+const ALLOWED_TAGS = new Set([
+    'P', 'BR', 'HR', 'STRONG', 'EM', 'DEL', 'CODE', 'PRE', 'BLOCKQUOTE', 'A',
+    'UL', 'OL', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
+    'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD'
+]);
+
+function isAllowedAttribute(element, attr) {
+    if (element.tagName === 'A') return attr.name === 'href' && /^https?:/i.test(attr.value);
+    return element.tagName === 'OL' && attr.name === 'start';
+}
+
+function sanitizeChildren(parent) {
+    for (const child of [...parent.childNodes]) {
+        if (child.nodeType === Node.TEXT_NODE) continue;
+        if (child.nodeType !== Node.ELEMENT_NODE) {
+            child.remove();
+            continue;
+        }
+        sanitizeChildren(child);
+        if (!ALLOWED_TAGS.has(child.tagName)) {
+            child.replaceWith(...child.childNodes);
+            continue;
+        }
+        for (const attr of [...child.attributes]) {
+            if (!isAllowedAttribute(child, attr)) child.removeAttribute(attr.name);
+        }
+        if (child.tagName === 'A') {
+            child.target = '_blank';
+            child.rel = 'noopener noreferrer';
+        }
+    }
+}
+
+function renderMarkdown(markdown) {
+    const doc = new DOMParser().parseFromString(marked.parse(markdown), 'text/html');
+    sanitizeChildren(doc.body);
+    outputEl.replaceChildren(...doc.body.childNodes);
+}
+
 copyButton.addEventListener('click', () => {
     copyStatus.style.display = 'inline';
     navigator.clipboard.writeText(copyText)
@@ -368,7 +393,7 @@ correctButton.addEventListener('click', async () => {
 
     let API_KEY;
     try {
-        API_KEY = await getApiKey();
+        API_KEY = await getApiKey({ interactive: true });
         if (!API_KEY) {
             showStatus('No API key found. Click the ⚙ icon to add one.');
             return;
@@ -444,7 +469,7 @@ correctButton.addEventListener('click', async () => {
 
             if (texts.length > 0) {
                 copyText = texts.join('\n');
-                outputEl.innerHTML = marked.parse(copyText);
+                renderMarkdown(copyText);
                 outputContainer.classList.add('active');
                 copyButton.style.display = 'inline-flex';
                 copyStatus.style.display = 'none';

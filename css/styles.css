@@ -447,18 +447,29 @@ input[type="password"] {
     padding: 9px 12px;
 }
 
-#saveApiKeyButton {
+#saveApiKeyButton,
+#unlockButton {
     margin-top: 4px;
 }
 
-#modalStatus {
+#modalStatus,
+#unlockStatus {
     margin: 0;
     font-size: 12px;
     color: var(--danger);
 }
 
-#modalStatus:empty {
+#modalStatus:empty,
+#unlockStatus:empty {
     display: none;
+}
+
+.link-button {
+    padding: 0;
+    font-size: 12px;
+    color: var(--accent);
+    background: none;
+    text-decoration: underline;
 }
 
 /* ---------- Scrollbars ---------- */

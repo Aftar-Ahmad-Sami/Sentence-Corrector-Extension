@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Sentence Corrector",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "Correct grammatical mistakes in sentences.",
   "permissions": [
     "storage"
@@ -24,7 +24,10 @@
       "id": "sentence-corrector@aftar-ahmad-sami",
       "strict_min_version": "140.0",
       "data_collection_permissions": {
-        "required": ["none"]
+        "required": [
+          "personalCommunications",
+          "authenticationInfo"
+        ]
       }
     }
   },

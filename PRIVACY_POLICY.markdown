@@ -1,8 +1,8 @@
-# Privacy Policy for Sentence Corrector Chrome Extension
+# Privacy Policy for Sentence Corrector Browser Extension
 
-**Last Updated: April 30, 2025**
+**Last Updated: November 9, 2026**
 
-Thank you for using the Sentence Corrector Chrome extension. This Privacy Policy explains how we collect, use, store, and protect your information when you use the Extension. By installing and using the Extension, you agree to the practices described in this policy.
+Thank you for using the Sentence Corrector extension for Chrome and Firefox. This Privacy Policy explains how we collect, use, store, and protect your information when you use the Extension. By installing and using the Extension, you agree to the practices described in this policy.
 
 ## 1. Information We Collect
 
@@ -10,11 +10,11 @@ The Extension is designed to prioritize your privacy and minimize data collectio
 
 ### a. User-Provided Information
 - **API Key**: You may provide a Gemini API key to enable the Extension’s text correction functionality. This key is encrypted and stored securely.
-- **Passphrase**: You may optionally provide a passphrase to enhance the security of your API key. This passphrase is encrypted and stored securely.
+- **Passphrase**: You may optionally provide a passphrase to enhance the security of your API key. This passphrase is never written to disk. It is held in your browser's memory until you close the browser.
 - **User Input**: Text you enter into the Extension’s textarea for correction is sent to the Gemini API for processing.
 
 ### b. Automatically Collected Information
-- **Device-Specific Secrets**: The Extension generates random cryptographic secrets (e.g., key seed, device secret) to secure your API key and passphrase. These are stored locally on your device.
+- **Device-Specific Secrets**: The Extension generates a random cryptographic key seed to secure your API key. It is stored locally on your device.
 - **Usage Data**: The Extension does not collect analytics or usage data. All processing occurs locally or through the Gemini API.
 
 ### c. Third-Party Data
@@ -27,7 +27,7 @@ We use the collected information solely to provide the Extension’s functionali
 - **API Key**: Used to authenticate requests to the Gemini API for text correction.
 - **Passphrase**: Used to derive encryption keys to protect your API key, enhancing security.
 - **User Input**: Sent to the Gemini API to generate corrected text based on your specified tone.
-- **Device-Specific Secrets**: Used to encrypt and decrypt your API key and passphrase, ensuring secure storage.
+- **Device-Specific Secrets**: Used to encrypt and decrypt your API key, ensuring secure storage.
 
 We do not use your information for advertising, analytics, or any purpose other than delivering the Extension’s core functionality.
 
@@ -36,11 +36,12 @@ We do not use your information for advertising, analytics, or any purpose other 
 We take your privacy and security seriously and implement the following measures to protect your data:
 
 - **Encryption**:
-  - Your API key and optional passphrase are encrypted using AES-GCM (256-bit) with keys derived via PBKDF2 (SHA-512, 250,000 iterations).
+  - Your API key is encrypted using AES-GCM (256-bit) with keys derived via PBKDF2 (SHA-512, 250,000 iterations).
   - Random salts and initialization vectors (IVs) are used for each encryption operation to ensure uniqueness.
 - **Storage**:
   - Encrypted API keys are stored in `chrome.storage.sync` to enable syncing across your devices.
-  - Device-specific secrets (key seed, device secret) and encrypted passphrases are stored in `chrome.storage.local`, tying them to the device where they were created.
+  - The device-specific key seed is stored in `chrome.storage.local`, tying it to the device where it was created.
+  - Optional passphrases are held in memory in `chrome.storage.session` and are cleared when you close the browser.
 - **Local Processing**: All encryption, decryption, and user interface operations occur locally on your device. No data is sent to our servers or any third party other than the Gemini API.
 
 Despite these measures, no system is completely secure. You are responsible for maintaining the security of your device and choosing a strong passphrase (if used).
@@ -54,11 +55,11 @@ We do not share your personal information with third parties, except as necessar
 
 ## 5. Data Retention
 
-- **API Key and Passphrase**: Encrypted API keys and passphrases are stored indefinitely in `chrome.storage.sync` and `chrome.storage.local`, respectively, until you remove them or uninstall the Extension.
+- **API Key and Passphrase**: Encrypted API keys are stored indefinitely in `chrome.storage.sync` until you remove them or uninstall the Extension. Passphrases are held in memory only and are cleared when you close the browser.
 - **User Input**: Input text is not stored by the Extension. It is sent to the Gemini API during processing and discarded after the response is displayed.
 - **Device-Specific Secrets**: Cryptographic secrets are stored in `chrome.storage.local` until you uninstall the Extension or manually clear your browser’s storage.
 
-You can remove your API key and passphrase at any time by clearing the Extension’s storage via Chrome’s extension settings or by reinstalling the Extension.
+You can remove your API key and passphrase at any time by clearing the Extension’s storage via your browser’s extension settings or by reinstalling the Extension.
 
 ## 6. Your Choices
 

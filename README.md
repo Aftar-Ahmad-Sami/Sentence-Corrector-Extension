@@ -30,8 +30,8 @@ The Sentence Corrector is a Chrome extension designed to enhance your writing by
   - Integrates with the Gemini Flash API for text correction and tone adjustment.
   - Uses the `marked` library to render Markdown-formatted responses.
 - **Security**:
-  - **Encryption**: API keys and optional passphrases are encrypted using AES-GCM with PBKDF2-derived keys (SHA-512, 250,000 iterations).
-  - **Storage**: Encrypted API keys are stored in `chrome.storage.sync`, while device-specific key seeds and passphrases are stored in `chrome.storage.local`.
+  - **Encryption**: API keys are encrypted using AES-GCM with PBKDF2-derived keys (SHA-512, 250,000 iterations).
+  - **Storage**: Encrypted API keys are stored in `chrome.storage.sync`, device-specific key seeds are stored in `chrome.storage.local`, and optional passphrases are held in memory only, in `chrome.storage.session`.
   - **Dynamic Key Derivation**: Uses random salts and a device-specific key seed for enhanced security.
 - **Permissions**: Requires `activeTab` and `storage` permissions for functionality.
 
@@ -86,7 +86,7 @@ sentence-corrector/
 ## Security Notes
 
 - **API Key Protection**: API keys are encrypted with AES-GCM and stored securely in `chrome.storage.sync`. A device-specific key seed ensures decryption is only possible on the original device.
-- **Passphrase Storage**: Optional passphrases are encrypted and stored in `chrome.storage.local`, eliminating the need to re-enter them for each session.
+- **Passphrase Storage**: Optional passphrases are never written to disk. They are held in memory and entered once per browser session.
 - **Best Practices**: Use a strong passphrase for maximum security. Avoid sharing your API key or extension data.
 
 ## Contributing

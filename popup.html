@@ -86,12 +86,28 @@
             <p class="modal-hint">
                 Get a free key from
                 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>.
-                It's encrypted before being saved in your browser's extension storage.
+                It's encrypted before being saved. If you add a passphrase, you'll enter it once per browser session.
             </p>
             <input type="password" id="apiKeyInput" placeholder="Gemini API key" autocomplete="off">
             <input type="password" id="passphraseInput" placeholder="Passphrase (optional)" autocomplete="off">
             <button id="saveApiKeyButton" class="primary">Save key</button>
             <p id="modalStatus"></p>
+        </div>
+    </div>
+
+    <div id="unlockModal" class="modal">
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="unlockTitle">
+            <div class="modal-header">
+                <h2 id="unlockTitle">Enter passphrase</h2>
+                <button id="closeUnlock" class="icon-button close" aria-label="Close">&times;</button>
+            </div>
+            <p class="modal-hint">
+                Your API key is locked. Your passphrase is kept only until you close the browser.
+            </p>
+            <input type="password" id="unlockInput" placeholder="Passphrase" autocomplete="off">
+            <button id="unlockButton" class="primary">Unlock</button>
+            <p id="unlockStatus"></p>
+            <button id="forgotPassphrase" class="link-button">Forgot it? Enter your API key again</button>
         </div>
     </div>
 
