@@ -1,5 +1,7 @@
 # Sentence Corrector Chrome Extension
 
+![Sentence Corrector](screenshots/promo-marquee-1400x560.png)
+
 **Correct your text effortlessly with AI-powered grammar and tone adjustments.**
 
 The Sentence Corrector is a Chrome extension designed to enhance your writing by correcting grammatical errors and refining text with customizable tones. Powered by the Gemini Flash API, this extension offers a user-friendly interface to improve text quality, making it ideal for students, professionals, and writers. With secure API key management and a sleek popup UI, it ensures both functionality and privacy.
@@ -11,14 +13,26 @@ The Sentence Corrector is a Chrome extension designed to enhance your writing by
 - **Secure API Key Storage**: Encrypts and stores API keys using AES-GCM with a device-specific key seed and optional passphrase for robust security.
 - **Clipboard Integration**: Easily copy corrected text to the clipboard with a single click.
 - **Responsive Design**: A clean, intuitive popup interface styled with CSS for a seamless user experience.
-- **Hack Mode**: Optional feature to bypass default correction prompts for advanced users.
+- **Raw Prompt**: Optional mode that bypasses the default correction prompt for advanced users.
+
+## Screenshots
+
+![Correct your text in one click](screenshots/screenshot-1-correct.png)
+
+| Choose a tone | Send a raw prompt |
+| --- | --- |
+| ![Tone selection](screenshots/screenshot-2-tone.png) | ![Raw prompt mode](screenshots/screenshot-3-raw-prompt.png) |
+
+| Use your own API key | Dark mode |
+| --- | --- |
+| ![API key settings](screenshots/screenshot-4-api-key.png) | ![Dark mode](screenshots/screenshot-5-dark-mode.png) |
 
 ## How It Works
 
 1. **Input Text**: Paste or type your text into the extension's textarea.
 2. **Select Tone**: Choose a tone (Normal, Professional, Friendly, or Academic) from the dropdown.
 3. **Set API Key**: Securely enter and store your Gemini API key with an optional passphrase.
-4. **Correct Text**: Click "Correct Sentences" to process your text via the Gemini Flash API.
+4. **Correct Text**: Click "Correct" to process your text via the Gemini Flash API.
 5. **Copy Output**: Copy the corrected text to your clipboard for immediate use.
 
 ## Technical Details
@@ -33,7 +47,7 @@ The Sentence Corrector is a Chrome extension designed to enhance your writing by
   - **Encryption**: API keys are encrypted using AES-GCM with PBKDF2-derived keys (SHA-512, 250,000 iterations).
   - **Storage**: Encrypted API keys are stored in `chrome.storage.sync`, device-specific key seeds are stored in `chrome.storage.local`, and optional passphrases are held in memory only, in `chrome.storage.session`.
   - **Dynamic Key Derivation**: Uses random salts and a device-specific key seed for enhanced security.
-- **Permissions**: Requires `activeTab` and `storage` permissions for functionality.
+- **Permissions**: Requires only the `storage` permission.
 
 ## Repository Structure
 
@@ -52,6 +66,7 @@ sentence-corrector/
 ├── lib/
 │   └── font-awesome.all.min.css    # Font-Awesome Icons
 │   └── marked.min.js               # Minified marked library for Markdown parsing
+├── screenshots/                    # Store screenshots, promo tiles, and store icon
 ├── popup.html                      # Main popup UI with textarea, tone selector, and modal
 ├── manifest.json                   # Chrome extension manifest file
 ├── LICENSE                         # MIT License file
@@ -78,10 +93,10 @@ sentence-corrector/
 
 ## Usage
 
-- **Set API Key**: Open the extension, click "Set API Key," enter your Gemini API key, and optionally provide a passphrase for added security.
-- **Correct Text**: Input text, select a tone, and click "Correct Sentences" to receive AI-enhanced output.
-- **Copy Results**: Use the "Copy to Clipboard" button to save the corrected text.
-- **Hack Mode**: Enable the "Hack" checkbox to send raw input to the API for custom use cases.
+- **Set API Key**: Open the extension, click the gear icon, enter your Gemini API key, and optionally provide a passphrase for added security.
+- **Correct Text**: Input text, select a tone, and click "Correct" to receive AI-enhanced output.
+- **Copy Results**: Use the "Copy" button to save the corrected text.
+- **Raw Prompt**: Turn on the "Raw prompt" switch to send raw input to the API for custom use cases.
 
 ## Security Notes
 
